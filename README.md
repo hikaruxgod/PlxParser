@@ -12,7 +12,7 @@
 
 1. Установить [.NET 8.0 Runtime](https://dotnet.microsoft.com/en-us/download/dotnet/8.0)
 2. Установить [SQL Server Developer Edition](https://www.microsoft.com/en-us/sql-server/sql-server-downloads) (бесплатно)
-3. Открыть SSMS, выполнить файл `schema.sql` — создаст базу данных AcademicWorkload
+3. Открыть SSMS, выполнить файл `SQLQuery` — создаст базу данных AcademicWorkload
 4. Скачать `PlxParser.exe` из [Releases](../../releases)
 5. Запустить `PlxParser.exe`
 
@@ -23,7 +23,7 @@
 3. Клонировать репозиторий
 4. Открыть `PlxParser.sln`
 5. Нажать Ctrl+Shift+B для сборки
-6. Открыть SSMS, выполнить файл `schema.sql`
+6. Открыть SSMS, выполнить файл `SQLQuery`
 7. Запустить приложение из Visual Studio (F5)
 
 ## Возможности
