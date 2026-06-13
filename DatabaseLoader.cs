@@ -50,7 +50,6 @@ namespace PlxParser
         public int YearsNorm { get; set; }
         public string Description { get; set; }
 
-        // Отображаемое название для ComboBox
         public string DisplayName =>
             $"{SpecialityCode} — {SpecialityTitle} ({RecruitmentYear})" +
             (string.IsNullOrEmpty(Description) ? "" : $" [{Description}]");
@@ -175,14 +174,11 @@ namespace PlxParser
             return result != null ? Convert.ToInt32(result) : 0;
         }
 
-        // Загрузить дисциплины всего плана
         public List<DisciplineResult> LoadDisciplines(int academicPlanID)
         {
             return LoadDisciplinesInternal(academicPlanID, null);
         }
 
-        // Загрузить дисциплины конкретного курса (1-4)
-        // Семестры курса N: (N-1)*2+1 и (N-1)*2+2
         public List<DisciplineResult> LoadDisciplinesByCourse(int academicPlanID, int course)
         {
             return LoadDisciplinesInternal(academicPlanID, course);
@@ -266,7 +262,6 @@ namespace PlxParser
             return result != null ? Convert.ToInt32(result) : 0;
         }
 
-        // Загрузить ProfileID по ID учебного плана
         public int LoadProfileIDByPlan(int academicPlanID)
         {
             using var conn = new SqlConnection(_conn);
@@ -280,7 +275,6 @@ namespace PlxParser
             return result != null ? Convert.ToInt32(result) : 0;
         }
 
-        // Загрузить все планы для ComboBox (направление + год)
         public List<AcademicPlanView> LoadAllPlans()
         {
             var result = new List<AcademicPlanView>();
@@ -372,7 +366,6 @@ namespace PlxParser
             using var conn = new SqlConnection(_conn);
             conn.Open();
 
-            // Сначала удаляем количество студентов
             using (var cmd = new SqlCommand(
                 "DELETE FROM StudentCount WHERE GroupID = @GroupID", conn))
             {
@@ -380,7 +373,6 @@ namespace PlxParser
                 cmd.ExecuteNonQuery();
             }
 
-            // Потом удаляем группу
             using (var cmd = new SqlCommand(
                 "DELETE FROM [Group] WHERE ID = @GroupID", conn))
             {
@@ -418,13 +410,11 @@ namespace PlxParser
             cmd.ExecuteNonQuery();
         }
 
-        // Удалить учебный план — каскадное удаление через ON DELETE CASCADE
         public void DeleteAcademicPlan(int planID)
         {
             using var conn = new SqlConnection(_conn);
             conn.Open();
 
-            // Stream не имеет CASCADE на SubjectSection2ID — удаляем вручную
             using (var cmd = new SqlCommand(@"
                 DELETE FROM Stream
                 WHERE SubjectSection2ID IN (
@@ -437,7 +427,6 @@ namespace PlxParser
                 cmd.ExecuteNonQuery();
             }
 
-            // Остальное удаляется каскадно
             using (var cmd = new SqlCommand(
                 "DELETE FROM AcademicPlan WHERE ID = @PlanID", conn))
             {
@@ -446,7 +435,6 @@ namespace PlxParser
             }
         }
 
-        // Загрузить все планы для направления (для режима 3.3)
         public List<AcademicPlanView> LoadAllPlansBySpeciality(int specialityID)
         {
             var result = new List<AcademicPlanView>();
