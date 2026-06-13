@@ -31,7 +31,6 @@ namespace PlxParser
                 cmbSpecSettings.Items.Clear();
                 cmbGroupProfile.Items.Clear();
 
-                // Загружаем все планы для выбора
                 _allPlans = _loader.LoadAllPlans();
                 _specialities = _loader.LoadSpecialities();
 
@@ -65,7 +64,6 @@ namespace PlxParser
 
         private void RefreshStudentGroups()
         {
-            // Обновляем список групп на вкладке Настройки
             cmbStudentGroup.Items.Clear();
             var allGroups = _loader.LoadAllGroups();
             foreach (var g in allGroups)
@@ -73,7 +71,6 @@ namespace PlxParser
             if (cmbStudentGroup.Items.Count > 0)
                 cmbStudentGroup.SelectedIndex = 0;
 
-            // Обновляем список групп на вкладке Нагрузка
             if (cmbSpeciality.SelectedIndex >= 0 && _specialities != null &&
                 cmbSpeciality.SelectedIndex < _specialities.Count)
             {
@@ -109,12 +106,10 @@ namespace PlxParser
         {
             int mode = cmbMode.SelectedIndex;
 
-            // Режим 3.1 — курс не нужен, 3.2 и 3.3 — курс нужен
             cmbCourse.Enabled = mode > 0;
 
             bool is33 = mode == 2;
 
-            // Обновляем список курсов в зависимости от режима
             cmbCourse.Items.Clear();
             if (is33)
                 cmbCourse.Items.Add("Весь план");
@@ -150,7 +145,7 @@ namespace PlxParser
 
         private void numYearSettings_ValueChanged(object sender, EventArgs e)
         {
-            // Год больше не используется - оставлен для совместимости
+
         }
 
         private void LoadFormulaParams()
@@ -266,12 +261,9 @@ namespace PlxParser
 
                 if (mode == 2)
                 {
-                    // 3.3 — несколько направлений для выбранного курса
-                    // SelectedIndex 0 = Весь план, 1-4 = курсы
                     bool allCourses33 = cmbCourse.SelectedIndex == 0;
-                    int course = cmbCourse.SelectedIndex; // 1=1курс, 2=2курс и тд
+                    int course = cmbCourse.SelectedIndex;
 
-                    // Собираем выбранные планы
                     var selectedPlans = new List<AcademicPlanView>();
                     for (int i = 0; i < clbSpecialities.Items.Count; i++)
                         if (clbSpecialities.GetItemChecked(i))
@@ -291,7 +283,6 @@ namespace PlxParser
                     {
                         int selProfileID = _loader.LoadProfileIDByPlan(selectedPlan.ID);
 
-                        // Загружаем количество студентов для этого плана
                         var specGroups = _loader.LoadGroups(selProfileID);
                         int specStudents = 20; // по умолчанию
                         if (specGroups.Count > 0)
@@ -327,12 +318,10 @@ namespace PlxParser
 
                 if (mode == 0)
                 {
-                    // 3.1 — весь план
                     disciplines = _loader.LoadDisciplines(planID);
                 }
                 else
                 {
-                    // 3.2 — по курсу одного плана (индекс 0 = 1 курс, 1 = 2 курс и тд)
                     disciplines = _loader.LoadDisciplinesByCourse(planID, cmbCourse.SelectedIndex + 1);
                 }
 
@@ -352,7 +341,6 @@ namespace PlxParser
         private void ShowResults(List<CalculationResult> results,
             List<DepartmentResult> deptResults, double sp)
         {
-            // Таблица по дисциплинам
             dgvResults.Columns.Clear();
             dgvResults.Rows.Clear();
 
@@ -390,7 +378,6 @@ namespace PlxParser
                         System.Drawing.Color.FromArgb(220, 240, 255);
             }
 
-            // Таблица по кафедрам
             dgvDepartments.Columns.Clear();
             dgvDepartments.Rows.Clear();
 
@@ -435,7 +422,6 @@ namespace PlxParser
 
             try
             {
-                // Получаем ID плана из тега строки
                 int planID = (int)dgvPlans.SelectedRows[0].Tag;
                 _loader.DeleteAcademicPlan(planID);
                 LoadPlansList();
@@ -594,7 +580,6 @@ namespace PlxParser
             List<(AcademicPlanView Plan, List<DepartmentResult> DeptResults, double Sp)> planResults,
             int course)
         {
-            // Очищаем таблицу дисциплин — покажем сводку по планам
             dgvResults.Columns.Clear();
             dgvResults.Rows.Clear();
 
@@ -613,7 +598,6 @@ namespace PlxParser
                 dgvResults.Rows.Add(planName, sp.ToString("F4"), dept.Count);
             }
 
-            // Таблица по кафедрам — объединяем все планы
             dgvDepartments.Columns.Clear();
             dgvDepartments.Rows.Clear();
 
@@ -625,7 +609,6 @@ namespace PlxParser
             }
             dgvDepartments.Columns["Dept"].FillWeight = 40;
 
-            // Собираем все уникальные кафедры
             var allDepts = new HashSet<string>();
             foreach (var (_, dept, _) in planResults)
                 foreach (var d in dept)
@@ -642,7 +625,6 @@ namespace PlxParser
                 dgvDepartments.Rows.Add(row.ToArray());
             }
 
-            // Итоговая строка Sп
             var totalRow = new List<object> { "ИТОГО Sп" };
             foreach (var (_, _, sp) in planResults)
                 totalRow.Add(sp.ToString("F4"));
@@ -650,7 +632,6 @@ namespace PlxParser
             dgvDepartments.Rows[lastRow].DefaultCellStyle.Font =
                 new System.Drawing.Font(dgvDepartments.Font, System.Drawing.FontStyle.Bold);
 
-            // Показываем суммарный Sп первого плана в метке
             lblSpValue.Text = planResults.Count > 0
                 ? string.Join(" / ", planResults.Select(p => p.Sp.ToString("F4")))
                 : "—";
