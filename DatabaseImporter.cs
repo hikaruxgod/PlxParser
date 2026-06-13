@@ -66,7 +66,6 @@ namespace PlxParser
             var idMap = new Dictionary<int, int>();
             foreach (var item in items)
             {
-                // Проверяем по коду направления
                 int existingId = 0;
                 using (var checkCmd = new SqlCommand(
                     "SELECT ID FROM Speciality WHERE Code = @Code", conn))
@@ -82,7 +81,6 @@ namespace PlxParser
                 }
                 else
                 {
-                    // Получаем реальный ID уровня образования
                     int realEduId = item.EducationLvlID;
                     using (var eduCmd = new SqlCommand(
                         "SELECT TOP 1 ID FROM EducationLvl", conn))
@@ -95,7 +93,6 @@ namespace PlxParser
                         INSERT INTO Speciality (ID, EducationLvlID, Title, Code)
                         VALUES (@ID, @EducationLvlID, @Title, @Code);
                         SELECT SCOPE_IDENTITY();", conn);
-                    // Используем новый уникальный ID
                     int newId = GetNextId(conn, "Speciality");
                     cmd.Parameters.AddWithValue("@ID", newId);
                     cmd.Parameters.AddWithValue("@EducationLvlID", realEduId);
@@ -111,8 +108,6 @@ namespace PlxParser
 
         private int GetNextId(SqlConnection conn, string table)
         {
-            // Берём MAX из всех существующих ID и добавляем 1
-            // Используем 10000 как минимальный стартовый ID чтобы не пересекаться с PLX ID
             using var cmd = new SqlCommand(
                 $"SELECT ISNULL(MAX(ID), 9999) + 1 FROM {table}", conn);
             int next = Convert.ToInt32(cmd.ExecuteScalar());
@@ -129,7 +124,6 @@ namespace PlxParser
                     ? s : item.SpecialityID;
 
                 int existingId = 0;
-                // Ищем профиль только по направлению — название может меняться между годами
                 using (var checkCmd = new SqlCommand(
                     "SELECT TOP 1 ID FROM Profile WHERE SpecialityID = @SpecID", conn))
                 {
@@ -181,7 +175,6 @@ namespace PlxParser
 
                 if (existingId > 0)
                 {
-                    // Обновляем Description если задано
                     if (!string.IsNullOrEmpty(item.Description))
                     {
                         using var upd = new SqlCommand(
@@ -318,7 +311,6 @@ namespace PlxParser
                 int deptId = departmentIdMap.TryGetValue(item.DepartmentID, out var d) ? d : 0;
                 int discId = disciplineIdMap.TryGetValue(item.DisciplineID, out var di) ? di : 0;
 
-                // Пропускаем если дисциплина уже есть в этом плане
                 using (var checkCmd = new SqlCommand(@"
                     SELECT 1 FROM Subject
                     WHERE AcademicPlanID = @PlanID AND DisciplineID = @DiscID", conn))
@@ -359,11 +351,9 @@ namespace PlxParser
         {
             foreach (var item in items)
             {
-                // Получаем реальный ID субъекта
                 int realSubjectId = subjectIdMap.TryGetValue(item.SubjectID, out var sid)
                     ? sid : item.SubjectID;
 
-                // Пропускаем если уже есть
                 using (var checkCmd = new SqlCommand(@"
                     SELECT 1 FROM SubjectSection
                     WHERE SubjectID = @SubjectID AND Semester = @Semester", conn))
